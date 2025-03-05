@@ -73,7 +73,11 @@ impl DeckSize {
         ]
     }
 
-    pub(crate) fn lid_paper_size(&self) -> f32 {
+    pub(crate) fn lid_paper_height(&self) -> f32 {
+        self.depth * 4.
+    }
+
+    pub(crate) fn lid_paper_width(&self) -> f32 {
         self.depth + self.width + self.depth
     }
 

@@ -13,9 +13,9 @@ const FACTOR: f32 = 2. / SQRT_2;
 
 fn main() {
     let deck = DeckSize {
-        width: 60.,
-        heigh: 93.,
-        depth: 30.,
+        width: 68.,
+        heigh: 95.,
+        depth: 16.,
     };
     let offset = 5.;
 
@@ -34,7 +34,7 @@ fn main() {
         &deck,
         &second_lid_layer,
         offset,
-        offset * 2. + deck.lid_paper_size(),
+        offset * 2. + deck.lid_paper_height(),
     );
 
     doc.save(&mut BufWriter::new(
@@ -49,25 +49,26 @@ fn add_lid_to_page(
     horizontal_offset: f32,
     vertical_offset: f32,
 ) {
-    let page_size = deck.lid_paper_size();
+    let page_height = deck.lid_paper_height();
+    let page_width = deck.lid_paper_width();
     let lid_border_points = vec![
         (
             Point::new(Mm(horizontal_offset), Mm(vertical_offset)),
             false,
         ),
         (
-            Point::new(Mm(horizontal_offset), Mm(vertical_offset + page_size)),
+            Point::new(Mm(horizontal_offset), Mm(vertical_offset + page_height)),
             false,
         ),
         (
             Point::new(
-                Mm(horizontal_offset + page_size),
-                Mm(vertical_offset + page_size),
+                Mm(horizontal_offset + page_width),
+                Mm(vertical_offset + page_height),
             ),
             false,
         ),
         (
-            Point::new(Mm(horizontal_offset + page_size), Mm(vertical_offset)),
+            Point::new(Mm(horizontal_offset + page_width), Mm(vertical_offset)),
             false,
         ),
     ];
@@ -100,7 +101,7 @@ fn add_lid_to_page(
                         false,
                     ),
                     (
-                        Point::new(Mm(horizontal_offset + d), Mm(vertical_offset + page_size)),
+                        Point::new(Mm(horizontal_offset + d), Mm(vertical_offset + page_height)),
                         false,
                     ),
                 ];
@@ -125,7 +126,7 @@ fn add_lid_to_page(
                         false,
                     ),
                     (
-                        Point::new(Mm(horizontal_offset + page_size), Mm(vertical_offset + d)),
+                        Point::new(Mm(horizontal_offset + page_width), Mm(vertical_offset + d)),
                         false,
                     ),
                 ];
