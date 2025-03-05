@@ -33,9 +33,9 @@ fn main() {
 
     let lid_border_points = vec![
         (Point::new(margin, margin), false),
-        (Point::new(margin, margin + page_size), false),
-        (Point::new(margin + page_size, margin + page_size), false),
-        (Point::new(margin + page_size, margin), false),
+        (Point::new(margin, page_size), false),
+        (Point::new(page_size, page_size), false),
+        (Point::new(page_size, margin), false),
     ];
 
     lid_layer.add_polygon(Polygon {
@@ -50,41 +50,51 @@ fn main() {
         winding_order: WindingOrder::NonZero,
     });
 
-    let lid_vertical_folds = {
-        let mut folds = vec![];
-        for d in deck.lid_vertical_folds() {
-            let fold = vec![
-                (Point::new(margin, margin + d * FACTOR), false),
-                (Point::new(margin + d * FACTOR, margin), false),
-            ];
-            folds.push(fold);
-        }
+    // TODO: Set line style
+    // let dash_pattern = LineDashPattern {
+    //     dash_1: Some(20),
+    //     ..Default::default()
+    // };
+    // lid_layer.set_line_dash_pattern(dash_pattern);
+    {
+        let lid_vertical_folds = {
+            let mut folds = vec![];
+            for d in deck.lid_vertical_folds() {
+                let fold = vec![
+                    (Point::new(margin, margin + d * FACTOR), false),
+                    (Point::new(margin + d * FACTOR, margin), false),
+                ];
+                folds.push(fold);
+            }
 
-        Polygon {
-            rings: folds,
-            mode: PaintMode::Stroke,
-            winding_order: WindingOrder::NonZero,
-        }
-    };
-    lid_layer.add_polygon(lid_vertical_folds);
+            Polygon {
+                rings: folds,
+                mode: PaintMode::Stroke,
+                winding_order: WindingOrder::NonZero,
+            }
+        };
+        // TODO: use lines instead of polygon
+        lid_layer.add_polygon(lid_vertical_folds);
+    }
+    {
+        let lid_horizontal_folds = {
+            let mut folds = vec![];
+            for d in dbg!(deck.lid_horizontal_folds()) {
+                let fold = vec![
+                    (Point::new(margin, page_size - d * FACTOR), false),
+                    (Point::new(margin + d * FACTOR, page_size), false),
+                ];
+                folds.push(fold);
+            }
 
-    let lid_horizontal_folds = {
-        let mut folds = vec![];
-        for d in deck.lid_horizontal_folds() {
-            let fold = vec![
-                (Point::new(margin, page_size - d * FACTOR), false),
-                (Point::new(margin + d * FACTOR, page_size), false),
-            ];
-            folds.push(fold);
-        }
-
-        Polygon {
-            rings: folds,
-            mode: PaintMode::Stroke,
-            winding_order: WindingOrder::NonZero,
-        }
-    };
-    lid_layer.add_polygon(lid_horizontal_folds);
+            Polygon {
+                rings: folds,
+                mode: PaintMode::Stroke,
+                winding_order: WindingOrder::NonZero,
+            }
+        };
+        lid_layer.add_polygon(lid_horizontal_folds);
+    }
 
     // Quadratic shape. The "false" determines if the next (following)
     // point is a bezier handle (for curves)
