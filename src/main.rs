@@ -24,10 +24,18 @@ fn main() {
     let box_layer = doc.get_page(box_page_index).get_layer(box_layer_index);
     add_box_to_page(&deck, &box_layer, offset);
 
-    let (lid_page_index, lid_layer_index) = doc.add_page_with_size(PageSize::A4, "lids");
-    let lid_layer = doc.get_page(lid_page_index).get_layer(lid_layer_index);
+    let (lid_page_index, lid_layer_index) = doc.add_page_with_size(PageSize::A4, "first lid");
+    let first_lid_layer = doc.get_page(lid_page_index).get_layer(lid_layer_index);
 
-    add_lid_to_page(&deck, &lid_layer, offset);
+    add_lid_to_page(&deck, &first_lid_layer, offset, offset);
+
+    let second_lid_layer = doc.get_page(lid_page_index).add_layer("second lid");
+    add_lid_to_page(
+        &deck,
+        &second_lid_layer,
+        offset,
+        offset * 2. + deck.lid_paper_size(),
+    );
 
     doc.save(&mut BufWriter::new(
         File::create("test_working.pdf").unwrap(),
@@ -35,16 +43,33 @@ fn main() {
     .unwrap();
 }
 
-fn add_lid_to_page(deck: &DeckSize, lid_layer: &PdfLayerReference, offset: f32) {
+fn add_lid_to_page(
+    deck: &DeckSize,
+    lid_layer: &PdfLayerReference,
+    horizontal_offset: f32,
+    vertical_offset: f32,
+) {
     let page_size = deck.lid_paper_size();
     let lid_border_points = vec![
-        (Point::new(Mm(offset), Mm(offset)), false),
-        (Point::new(Mm(offset), Mm(offset + page_size)), false),
         (
-            Point::new(Mm(offset + page_size), Mm(offset + page_size)),
+            Point::new(Mm(horizontal_offset), Mm(vertical_offset)),
             false,
         ),
-        (Point::new(Mm(offset + page_size), Mm(offset)), false),
+        (
+            Point::new(Mm(horizontal_offset), Mm(vertical_offset + page_size)),
+            false,
+        ),
+        (
+            Point::new(
+                Mm(horizontal_offset + page_size),
+                Mm(vertical_offset + page_size),
+            ),
+            false,
+        ),
+        (
+            Point::new(Mm(horizontal_offset + page_size), Mm(vertical_offset)),
+            false,
+        ),
     ];
 
     lid_layer.add_polygon(Polygon {
@@ -70,8 +95,14 @@ fn add_lid_to_page(deck: &DeckSize, lid_layer: &PdfLayerReference, offset: f32) 
             let mut folds = vec![];
             for d in deck.lid_vertical_folds() {
                 let fold = vec![
-                    (Point::new(Mm(offset + d), Mm(offset)), false),
-                    (Point::new(Mm(offset + d), Mm(offset + page_size)), false),
+                    (
+                        Point::new(Mm(horizontal_offset + d), Mm(vertical_offset)),
+                        false,
+                    ),
+                    (
+                        Point::new(Mm(horizontal_offset + d), Mm(vertical_offset + page_size)),
+                        false,
+                    ),
                 ];
                 folds.push(fold);
             }
@@ -89,8 +120,14 @@ fn add_lid_to_page(deck: &DeckSize, lid_layer: &PdfLayerReference, offset: f32) 
             let mut folds = vec![];
             for d in deck.lid_horizontal_folds() {
                 let fold = vec![
-                    (Point::new(Mm(offset), Mm(offset + d)), false),
-                    (Point::new(Mm(offset + page_size), Mm(offset + d)), false),
+                    (
+                        Point::new(Mm(horizontal_offset), Mm(vertical_offset + d)),
+                        false,
+                    ),
+                    (
+                        Point::new(Mm(horizontal_offset + page_size), Mm(vertical_offset + d)),
+                        false,
+                    ),
                 ];
                 folds.push(fold);
             }
